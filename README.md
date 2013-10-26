@@ -5,10 +5,9 @@ Stuff for making etcd packages.
 
 A quick makefile to download etcd and make a package out of it.
 
-== Requirements
-[fpm](https://github.com/jordansissel/fpm)
+## Requirements
+The ever so handy [fpm](https://github.com/jordansissel/fpm)
 
-== Usage
-
+## Usage
     make deb
 
