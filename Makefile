@@ -8,7 +8,7 @@ etcd-v$(VERSION)-Linux-amd64.tar.gz:
 etcd-v$(VERSION)-Linux-amd64/etcd: wget
 	tar xzf etcd-v$(VERSION)-Linux-amd64.tar.gz
 
-etcd_v$(VERSION)_amd64.deb: etcd-v$(VERSION)-Linux-amd64/etcd
+etcd_$(VERSION)_amd64.deb: etcd-v$(VERSION)-Linux-amd64/etcd
 	cd etcd-v$(VERSION)-linux-amd64/ && \
 	fpm -s dir -t deb -v $(VERSION) -n etcd -a amd64 \
 	--prefix=/usr/bin/ \
@@ -17,7 +17,7 @@ etcd_v$(VERSION)_amd64.deb: etcd-v$(VERSION)-Linux-amd64/etcd
 	etcd etcdctl && \
 	mv *.deb ..
 
-deb: etcd_v$(VERSION)_amd64.deb
+deb: etcd_$(VERSION)_amd64.deb
 
 clean:
 	rm -rf etcd*
