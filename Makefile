@@ -20,7 +20,7 @@ $(TARBALL):
 	wget -nv --show-progress -c -O $(TARBALL) $(DOWNLOAD)
 
 $(TARDIR): $(TARBALL)
-	tar xzf $(TARBALL) 
+	tar xzf $(TARBALL)
 
 filetree: $(TARDIR)
 	mkdir -p ROOT/usr/sbin
@@ -54,13 +54,13 @@ etcd_$(VERSION)_amd64.deb: filetree
 		--pre-uninstall debian/prerm \
 		.
 
-etcd_$(VERSION)_amd64.rpm: $(TARDIR) 
+etcd_$(VERSION)_amd64.rpm: $(TARDIR)
 	cd $(TARDIR)/ && \
 	fpm -s dir -t rpm -v $(VERSION) -n $(NAME) -a amd64 \
-	--prefix=/usr/bin \
-        --description "$(DESCRIPTION)" \
-	--url "https://github.com/coreos/etcd" \
-	etcd etcdctl && \
+		--prefix=/usr/bin \
+		--description "$(DESCRIPTION)" \
+		--url "https://github.com/coreos/etcd" \
+		etcd etcdctl && \
 	mv *.rpm ..
 
 .PHONY: clean
@@ -71,4 +71,4 @@ clean:
 deb: $(NAME)_$(VERSION)_amd64.deb
 
 .PHONY: rpm
-rpm: $(NAME)_$(VERSION)_amd64.rpm 
+rpm: $(NAME)_$(VERSION)_amd64.rpm
