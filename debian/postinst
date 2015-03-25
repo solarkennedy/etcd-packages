@@ -1,0 +1,12 @@
+#!/bin/sh
+
+USER=etcd
+GROUP=etcd
+HOMEDIR=/var/lib/etcd
+
+addgroup -q --system ${GROUP}
+adduser -q --system --home ${HOMEDIR} --ingroup ${GROUP} --disabled-password --disabled-login ${USER}
+
+chown ${USER}:${GROUP} ${HOMEDIR}
+
+service etcd start

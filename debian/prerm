@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if service etcd status; then
+  service etcd stop
+fi

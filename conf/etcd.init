@@ -1,0 +1,126 @@
+#!/bin/sh
+# Debian SysV init script for etcd
+# Jinn Koriech <https://github.com/jinnko/etcd-packages>
+### BEGIN INIT INFO
+# Provides:          etcd
+# Required-Start:    hostname $local_fs $remote_fs $syslog $named $network $time
+# Required-Stop:     $local_fs $remote_fs $syslog $named $network
+# Should-Start:      udev mdadm-raid lvm2 cryptdisks-early iptables firehol shorewall
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: start and stop the etcd key-value store
+# Description:       A highly-available key-value store for shared configuration and service discovery.
+### END INIT INFO
+
+NAME="etcd"
+DAEMON="/usr/sbin/etcd"
+DESC="etcd key-value store for shared configuration and service discovery daemon"
+NICE="0"
+
+test -x $DAEMON || exit 5
+
+. /lib/lsb/init-functions
+
+ETCD_LOGFILE="/var/log/etcd/etcd.log"
+ETCD_PIDFILE="/var/run/etcd.pid"
+ETCD_USER="etcd"
+ETCD_GROUP="etcd"
+
+# Ensure log is writable
+[ -d "$(dirname ${ETCD_LOGFILE})" ] || mkdir "$(dirname ${ETCD_LOGFILE})"
+if [ "$(/usr/bin/stat -t $(dirname $ETCD_LOGFILE) --printf=%u)" != "$ETCD_USER" ]; then
+  chown $ETCD_USER:$ETCD_GROUP $(dirname $ETCD_LOGFILE)
+fi
+
+# etcd config via environment variables
+# - first local init script defaults
+# - then system defaults
+# - then user config
+ETCD_NAME="$(hostname -s)"
+ETCD_DATA_DIR="/var/lib/etcd/${ETCD_NAME}"
+test -f /etc/default/etcd && . /etc/default/etcd
+test -f /etc/etcd.conf && . /etc/etcd.conf
+
+is_running() {
+  # Returned status corresponds to init-functions script
+  # 0 = process exists
+  # 1 = pidfile exists, but process doesn't
+  # 4 = no pidfile exists
+  if [ -r "$ETCD_PIDFILE" ]; then
+    kill -0 $(cat $ETCD_PIDFILE)
+    return $?
+  else
+    return 4
+  fi
+}
+
+status() {
+  is_running; ret=$?
+  if [ $ret -eq 0 ]; then
+    echo "$NAME is running."
+  elif [ $ret -eq 1 ]; then
+    echo "Pidfile found, but process isn't running."
+  elif [ $ret -eq 4 ]; then
+    echo "$NAME not running."
+  else
+    echo "Unknown status: $ret"
+  fi
+  exit $ret
+}
+
+start() {
+  if is_running; then
+    echo "$NAME is already running."
+    exit 0
+  fi
+  log_begin_msg "Starting $NAME: "
+
+  if [ ! -d "$ETCD_DATA_DIR" ]; then
+    mkdir -p "${ETCD_DATA_DIR}"
+    chown $ETCD_USER:$ETCD_GROUP "${ETCD_DATA_DIR}"
+    chmod 0700 "${ETCD_DATA_DIR}"
+  fi
+
+  /sbin/start-stop-daemon --start --nicelevel $NICE \
+    --chdir "$ETCD_DATA_DIR" --chuid $ETCD_USER:$ETCD_GROUP \
+    --background --pidfile "$ETCD_PIDFILE" --make-pidfile \
+    --exec $DAEMON --no-close -- > $ETCD_LOGFILE 2>&1
+  RETVAL=$?
+  if [ $RETVAL -eq 0 ]; then
+    log_success_msg "started"
+  else
+    log_failure_msg "failed"
+  fi
+  return $RETVAL
+}
+
+stop() {
+  is_running; ret=$?
+  if [ $ret -ne 0 ]; then
+    echo "Not stopping $NAME because it isn't running."
+    exit 0
+  fi
+  log_begin_msg "Stopping $NAME: "
+
+  killproc -p "$ETCD_PIDFILE" "$DAEMON"
+  RETVAL=$?
+  if [ $RETVAL -eq 0 ]; then
+    log_success_msg "stopped"
+    rm "${ETCD_PIDFILE}"
+  else
+    log_failure_msg "failed"
+  fi
+  return $RETVAL
+}
+
+restart() {
+  stop
+  sleep 1
+  start
+}
+
+$1 || {
+  echo "Usage: $0 {start|stop|restart|status}"
+  RETVAL=1
+}
