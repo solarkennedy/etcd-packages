@@ -1,1 +1,5 @@
-etcd*
+etcd-*
+etcd_*.deb
+!*.conf
+!*.init
+ROOT/
