@@ -17,7 +17,7 @@ default: deb
 package: deb
 
 $(TARBALL):
-	wget -nv --show-progress -c -O $(TARBALL) $(DOWNLOAD)
+	wget -nv --progress=bar -c -O $(TARBALL) $(DOWNLOAD)
 
 $(TARDIR): $(TARBALL)
 	tar xzf $(TARBALL)
