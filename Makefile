@@ -3,7 +3,7 @@
 # vim:set ts=4 sw=4 sts=4 noexpandtab
 
 NAME=etcd
-VERSION=2.0.5
+VERSION=2.2.0
 TARBALL=$(NAME)-v$(VERSION)-Linux-amd64.tar.gz
 TARDIR=$(NAME)-v$(VERSION)-linux-amd64
 DOWNLOAD=https://github.com/coreos/etcd/releases/download/v$(VERSION)/$(TARBALL)
@@ -28,11 +28,10 @@ filetree: $(TARDIR)
 	mkdir -p ROOT/usr/share/doc/etcd/Documentation/platforms
 	mkdir -p ROOT/usr/share/doc/etcd/Documentation/rfc
 	mkdir -p ROOT/etc
-	install -Cv $(TARDIR)/etcd $(TARDIR)/etcd-migrate ROOT/usr/sbin
+	install -Cv $(TARDIR)/etcd ROOT/usr/sbin
 	install -Cv $(TARDIR)/etcdctl ROOT/usr/bin
 	install -Cv -m 0644 $(TARDIR)/README.md $(TARDIR)/README-etcdctl.md ROOT/usr/share/doc/etcd
 	install -Cv -m 0644 $(TARDIR)/Documentation/*.md ROOT/usr/share/doc/etcd/Documentation
-	install -Cv -m 0644 $(TARDIR)/Documentation/*.png ROOT/usr/share/doc/etcd/Documentation
 	install -Cv -m 0644 $(TARDIR)/Documentation/platforms/* ROOT/usr/share/doc/etcd/Documentation/platforms
 	install -Cv -m 0644 $(TARDIR)/Documentation/rfc/* ROOT/usr/share/doc/etcd/Documentation/rfc
 	install -Cv -m 0640 conf/etcd.conf ROOT/etc
