@@ -25,7 +25,8 @@ $(TARDIR): $(TARBALL)
 filetree: $(TARDIR)
 	mkdir -p ROOT/usr/sbin
 	mkdir -p ROOT/usr/bin
-	mkdir -p ROOT/usr/share/doc/etcd/Documentation/{platforms,rfc}
+	mkdir -p ROOT/usr/share/doc/etcd/Documentation/platforms
+	mkdir -p ROOT/usr/share/doc/etcd/Documentation/rfc
 	mkdir -p ROOT/etc
 	install -Cv $(TARDIR)/etcd $(TARDIR)/etcd-migrate ROOT/usr/sbin
 	install -Cv $(TARDIR)/etcdctl ROOT/usr/bin
@@ -43,7 +44,7 @@ etcd_$(VERSION)_amd64.deb: filetree
 		--iteration $(ITERATION) \
 		--architecture amd64 \
 		--provides etcd \
-		--deb-default conf/etcd_default.conf \
+		--deb-default conf/default/etcd \
 		--deb-init conf/etcd.init \
 		--config-files /etc/etcd.conf \
 		--directories /var/lib/etcd \
