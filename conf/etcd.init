@@ -48,7 +48,7 @@ is_running() {
   # 1 = pidfile exists, but process doesn't
   # 4 = no pidfile exists
   if [ -r "$ETCD_PIDFILE" ]; then
-    kill -0 $(cat $ETCD_PIDFILE)
+    kill -0 $(cat $ETCD_PIDFILE) 1>/dev/null 2>&1
     return $?
   else
     return 4
@@ -66,13 +66,13 @@ status() {
   else
     echo "Unknown status: $ret"
   fi
-  exit $ret
+  return $ret
 }
 
 start() {
   if is_running; then
     echo "$NAME is already running."
-    exit 0
+    return 0
   fi
   log_begin_msg "Starting $NAME: "
 
@@ -99,7 +99,7 @@ stop() {
   is_running; ret=$?
   if [ $ret -ne 0 ]; then
     echo "Not stopping $NAME because it isn't running."
-    exit 0
+    return 0
   fi
   log_begin_msg "Stopping $NAME: "
 
